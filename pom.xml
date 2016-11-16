@@ -3,7 +3,7 @@
 
     <groupId>com.zuora</groupId>
     <artifactId>z-java</artifactId>
-    <version>1.0.7</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
 
     <name>z-java</name>
@@ -129,7 +129,7 @@
                 </executions>
                 <configuration>
                     <packageName>com.zuora.api.axis2</packageName>
-                    <wsdlFile>src/main/wsdl/zuora.a.79.0.wsdl</wsdlFile>
+                    <wsdlFile>src/main/wsdl/zuora.production.a.79.0.wsdl</wsdlFile>
                     <databindingName>adb</databindingName>
                     <outputDirectory>target/generated-sources/java</outputDirectory>
                 </configuration>
