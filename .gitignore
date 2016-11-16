@@ -1,6 +1,7 @@
 target
 .DS_Store
 src/main/resources/application.yml
+src/test/resources/application.yml
 .classpath
 .project
 .settings/

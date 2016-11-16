@@ -35,9 +35,21 @@ First, clone the github repository on your computer
     git clone https://github.com/abaenglish/z-java.git
     cd z-java
 
-Copy the sample properties files and edit it to add your credentials
 
-    cp src/main/resources/config.sample.properties src/main/resources/config.properties
+You need create config files with credentials apisandbox in this path:
+
+    src/main/resources/application.yml
+
+Example:
+
+```
+    external:
+      zuora:
+        soap:
+          username: apiuserzuora@abaenglish.com
+          password: thisismypassword
+          host: apisandbox.zuora.com
+```
 
 Build the JAR file
 
@@ -57,6 +69,43 @@ This WSDL has changed some attributes in method **Subscription** (PLEASE MANTAIN
 -  **ContractEffectiveDay**  date -> string
 -  **ServiceActivationDate**   date -> string
 -  **TermStartDate**   date -> string
+
+This WSDL has changed some attributes in method **Amendment** (PLEASE MANTAIN THIS CHANGES WHEN UPDATE WSDL):
+-  **ContractEffectiveDate**  date -> string
+-  **CustomerAcceptanceDate**   date -> string
+-  **CustomerAcceptanceDate**   date -> string
+-  **ServiceActivationDate**   date -> string
+-  **SpecificUpdateDate**   date -> string
+-  **TermStartDate**   date -> string
+
+
+## ZuoraStubService
+
+If you have problems with this generate code you change IntelliJ IDEA.
+
+How can I change this properties?
+
+You go terminal and write:
+
+```
+nano /Applications/IntelliJ\ IDEA.app/Contents/bin/idea.properties
+```
+
+and modify:
+
+```
+idea.max.intellisense.filesize=2500
+```
+
+for:
+
+```
+idea.max.intellisense.filesize=250000
+```
+
+You have more info in:
+
+[How can I change idea.properties](https://intellij-support.jetbrains.com/hc/en-us/articles/206544869-Configuring-JVM-options-and-platform-properties)
 
 
 Installing it locally
