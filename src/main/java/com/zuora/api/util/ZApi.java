@@ -562,16 +562,22 @@ public class ZApi {
      *       Amendment.SubscriptionId
      * @param amendments
      *          Array of amendments for send to zuora
+     * @param amendOptions
+     *          Amend options configuration
      * @return
      *          Array of results of each amendment processed
+     * @return
      * @throws UnexpectedErrorFault
      * @throws RemoteException
      */
-    private ZuoraServiceStub.AmendResult[] zAmendUnit(ZuoraServiceStub.Amendment[] amendments) throws UnexpectedErrorFault, RemoteException {
+    private ZuoraServiceStub.AmendResult[] zAmendUnit(ZuoraServiceStub.Amendment[] amendments, final AmendOptions amendOptions) throws UnexpectedErrorFault, RemoteException {
         final ZuoraServiceStub.AmendRequest amend = new ZuoraServiceStub.AmendRequest();
         amend.setAmendments(amendments);
-
+        if(amendOptions != null) {
+            amend.setAmendOptions(amendOptions);
+        }
         final ZuoraServiceStub.Amend amends = new ZuoraServiceStub.Amend();
+
         amends.setRequests(new ZuoraServiceStub.AmendRequest[]{amend});
 
 
@@ -595,6 +601,20 @@ public class ZApi {
     }
 
     /**
+     *  @see ZApi#zAmend(Amendment[], AmendOptions)
+     *  Do the same function as ZApi{@link #zAmend(Amendment[], AmendOptions)} with default amend options configuration
+     *
+     * @param amendments
+     *          Array of amendments for send to zuora
+     * @return
+     * @throws UnexpectedErrorFault
+     * @throws RemoteException
+     */
+    public ZuoraServiceStub.AmendResult[] zAmend(ZuoraServiceStub.Amendment[] amendments) throws UnexpectedErrorFault, RemoteException {
+        return zAmend(amendments, null);
+    }
+
+    /**
      * {@see ZApi.zAmendUnit}
      *
      * If amendments array exceeds the {code MAX_OBJECTS} limit,
@@ -602,12 +622,15 @@ public class ZApi {
      *
      * @param amendments
      *          Array of amendments for send to zuora
+     * @param amendOptions
+     *          Amend options configuration
      * @return
      *          Array of results of each amendment processed
+     * @return
      * @throws UnexpectedErrorFault
      * @throws RemoteException
      */
-    public ZuoraServiceStub.AmendResult[] zAmend(ZuoraServiceStub.Amendment[] amendments) throws UnexpectedErrorFault, RemoteException {
+    public ZuoraServiceStub.AmendResult[] zAmend(ZuoraServiceStub.Amendment[] amendments, final AmendOptions amendOptions) throws UnexpectedErrorFault, RemoteException {
 
         ZuoraServiceStub.AmendResult[] amendResult;
 
@@ -618,13 +641,13 @@ public class ZApi {
             final ZObject[][] bulkStructure = ZuoraUtility.splitObjects(amendments);
             final List<AmendResult> bulkResults = new ArrayList(0);
             for (int i = 0; i < bulkStructure.length; i++) {
-                bulkResults.addAll(Arrays.asList(zAmendUnit((Amendment[]) bulkStructure[i])));
+                bulkResults.addAll(Arrays.asList(zAmendUnit((Amendment[]) bulkStructure[i], amendOptions)));
             }
             amendResult = bulkResults.toArray(new AmendResult[0]);
 
         } else {
 
-            amendResult = zAmendUnit(amendments);
+            amendResult = zAmendUnit(amendments, amendOptions);
         }
 
         // check results
