@@ -74,7 +74,7 @@ public class ZApiTest {
     }
 
 	@Test
-	public void testCancelSubscription() throws UnexpectedErrorFault, RemoteException, ParseException {
+	public void testCancelSubscriptionDefaultAmendOptions() throws UnexpectedErrorFault, RemoteException, ParseException {
         zapi.zLogin();
 
         // create a subscription first
@@ -97,6 +97,39 @@ public class ZApiTest {
 
             Assert.assertNotNull(amendResults);
             Assert.assertNotNull(amendResults[0].getAmendmentIds());
+			Assert.assertTrue(amendResults[0].getSuccess());
+		}
+
+	}
+
+	@Test
+	public void testCancelSubscriptionCustomAmendOptions() throws UnexpectedErrorFault, RemoteException, ParseException {
+		zapi.zLogin();
+
+		// create a subscription first
+		final SubscribeResult[] results =  createSubscription();
+		Assert.assertNotNull(results[0].getSubscriptionId());
+		System.out.println("subscription id: " + results[0].getSubscriptionId() );
+		System.out.println("subscription number: " + results[0].getSubscriptionNumber() );
+		final ID subscriptionId = results[0].getSubscriptionId();
+
+		if(subscriptionId != null) {
+			// Cancel the subscription
+			final ZuoraServiceStub.Amendment amendment = new ZuoraServiceStub.Amendment();
+			amendment.setType("Cancellation");
+			amendment.setName("Test Cancel Amendment");
+			amendment.setSubscriptionId(subscriptionId);
+			amendment.setContractEffectiveDate(sdf.format(new Date()));
+			amendment.setEffectiveDate(makeSubscription().getContractEffectiveDate());
+
+			AmendOptions amendOptions = new AmendOptions();
+			amendOptions.setGenerateInvoice(false);
+			amendOptions.setProcessPayments(false);
+
+			final ZuoraServiceStub.AmendResult[] amendResults = zapi.zAmend(new ZuoraServiceStub.Amendment[]{amendment}, amendOptions);
+
+			Assert.assertNotNull(amendResults);
+			Assert.assertNotNull(amendResults[0].getAmendmentIds());
 			Assert.assertTrue(amendResults[0].getSuccess());
 		}
 
