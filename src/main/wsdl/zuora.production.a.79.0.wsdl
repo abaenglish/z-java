@@ -415,11 +415,11 @@
                             <element minOccurs="0" name="AppliedInvoiceAmount" nillable="true" type="decimal"  />
                             <element minOccurs="0" name="AuthTransactionId" nillable="true" type="string" />
                             <element minOccurs="0" name="BankIdentificationNumber" nillable="true" type="string" />
-                            <element minOccurs="0" name="CancelledOn" nillable="true" type="dateTime"/>
+                            <element minOccurs="0" name="CancelledOn" nillable="true" type="string"/>
                             <element minOccurs="0" name="Comment" nillable="true" type="string" />
                             <element minOccurs="0" name="CreatedById" nillable="true" type="zns:ID"  />
                             <element minOccurs="0" name="CreatedDate" nillable="true" type="dateTime"  />
-                            <element minOccurs="0" name="EffectiveDate" nillable="true" type="date" />
+                            <element minOccurs="0" name="EffectiveDate" nillable="true" type="string" />
                             <element minOccurs="0" name="ExternalPaymentMethod__c" nillable="true" type="string" />
                             <element minOccurs="0" name="Gateway" nillable="true" type="string"  />
                             <element minOccurs="0" name="GatewayOptionData" nillable="true" type="zns:GatewayOptionData" />
