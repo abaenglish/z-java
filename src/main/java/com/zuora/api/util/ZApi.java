@@ -591,7 +591,7 @@ public class ZApi {
      * @param errors
      *          Array of Zuora errors
      */
-    void printZuoraErrors(com.zuora.api.axis2.ZuoraServiceStub.Error[] errors) {
+    public void printZuoraErrors(com.zuora.api.axis2.ZuoraServiceStub.Error[] errors) {
         if(errors.length > 0) {
             logger.error("Create call failed with the following errors:");
             for (com.zuora.api.axis2.ZuoraServiceStub.Error error : errors) {
