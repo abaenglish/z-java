@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.rmi.RemoteException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -402,6 +403,115 @@ public class ZApiTest {
 
 		return new RatePlanData[] { ratePlanData };
 	}
+
+	@Test
+	public void testCreatePaymentMethod() throws ParseException, UnexpectedErrorFault, RemoteException {
+		ID id = new ID();
+		id.setID("2c92c0f85bae511c015bd2efd9245d78");
+		zapi.zLogin();
+
+		Account account = new Account();
+		account.setId(id);
+		account.setPaymentGateway("Stripe Gateway");
+		account.setAutoPay(false);
+		account.addFieldsToNull("DefaultPaymentMethodId");
+
+		SaveResult[] updateResults = zapi.zUpdate(new ZObject[] { (ZObject) account });
+		Assert.assertTrue(updateResults[0].getSuccess());
+
+
+		PaymentMethod paymentMethodRequest = makePaymentMethod();
+		paymentMethodRequest.setAccountId(id);
+
+		SaveResult[] result = zapi.zCreate(new ZObject[] { (ZObject) paymentMethodRequest });
+		Assert.assertTrue(result[0].getSuccess());
+		ID paymentMethodId = result[0].getId();
+
+
+		Account newAccount = new Account();
+		newAccount.setId(id);
+		newAccount.setDefaultPaymentMethodId(paymentMethodId);
+		newAccount.setAutoPay(true);
+		account.setBcdSettingOption("ManualSet");
+		account.setBillCycleDay(LocalDate.now().getDayOfMonth());
+//		account.addFieldsToNull("");
+
+		SaveResult[] updateResultsFinal = zapi.zUpdate(new ZObject[] { (ZObject) newAccount });
+		Assert.assertTrue(updateResultsFinal[0].getSuccess());
+
+		PaymentMethod paymentMethod = new PaymentMethod();
+		paymentMethod.setId(paymentMethodId);
+
+		SubscriptionData data = new SubscriptionData();
+		data.setSubscription(makeSubscription());
+		data.setRatePlanData(makeRatePlanData());
+
+		SubscribeRequest request = new SubscribeRequest();
+		request.setAccount(newAccount);
+		request.setPaymentMethod(paymentMethod); // NO
+		request.setSubscriptionData(data);
+
+		zapi.zSubscribe(new SubscribeRequest[]{  request });
+	}
+
+	/**
+	 * Make rate plan data.
+	 *
+	 * @return the rate plan data[]
+	 */
+	public RatePlanData makeRatePlanDataDiscount100() {
+
+		RatePlanData ratePlanData = new RatePlanData();
+		RatePlan ratePlan = new RatePlan();
+
+		ID id = new ID();
+		id.setID("2c92c0f95c490174015c539541f26dae");
+		ratePlan.setProductRatePlanId(id);
+
+		ratePlanData.setRatePlan(ratePlan);
+
+		return ratePlanData;
+	}
+
+	@Test
+	public void testDescuento2x1() throws ParseException, UnexpectedErrorFault, RemoteException {
+		zapi.zLogin();
+
+		final SubscribeResult[] result =  createSubscription();
+
+		Assert.assertNotNull(result);
+		Assert.assertEquals(result[0].getGatewayResponseCode(), "Approved");
+		Assert.assertTrue(result[0].getSuccess());
+
+		QueryResult queryResult = zapi.zQuery("SELECT SubscriptionEndDate FROM Subscription WHERE Id = '"+result[0].getSubscriptionId().getID()+"'");
+
+		System.out.println(((Subscription) queryResult.getRecords()[0]).getSubscriptionEndDate());
+		final ZuoraServiceStub.Amendment amendment = new ZuoraServiceStub.Amendment();
+		amendment.setType("NewProduct");
+		amendment.setName("Added 2x1 Free first renewal");
+		amendment.setSubscriptionId(result[0].getSubscriptionId());
+		amendment.setContractEffectiveDate(((Subscription) queryResult.getRecords()[0]).getSubscriptionEndDate());
+		amendment.setRatePlanData(makeRatePlanDataDiscount100());
+
+		final ZuoraServiceStub.AmendResult[] amendResults = zapi.zAmend(new ZuoraServiceStub.Amendment[]{amendment});
+
+	}
+
+	@Test
+	public void test(){
+		ID id = new ID();
+		id.setID("2c92c0f95bae6219015bc8c416915831");
+		zapi.zLogin();
+
+		Account account = new Account();
+		account.setId(id);
+		account.setBcdSettingOption("ManualSet");
+		account.setBillCycleDay(LocalDate.now().getDayOfMonth());
+
+		SaveResult[] updateResults = zapi.zUpdate(new ZObject[] { (ZObject) account });
+		Assert.assertTrue(updateResults[0].getSuccess());
+	}
+
 	@Test
 	public void updateAccountStatus() {
 
