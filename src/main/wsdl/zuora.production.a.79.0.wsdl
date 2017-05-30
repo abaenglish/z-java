@@ -117,7 +117,7 @@
                         <sequence>
                             <element minOccurs="0" name="AccountId" nillable="true" type="zns:ID" />
                             <element minOccurs="0" name="AccountingCode" nillable="true" type="string"  />
-                            <element minOccurs="0" name="AdjustmentDate" nillable="true" type="date" />
+                            <element minOccurs="0" name="AdjustmentDate" nillable="true" type="string" />
                             <element minOccurs="0" name="AdjustmentNumber" nillable="true" type="string" />
                             <element minOccurs="0" name="Amount" nillable="true" type="decimal" />
                             <element minOccurs="0" name="CancelledById" nillable="true" type="zns:ID" />
@@ -1039,7 +1039,7 @@
                         <sequence>
                             <element minOccurs="0" name="AccountId" nillable="true" type="zns:ID" />
                             <element minOccurs="0" name="AccountingCode" nillable="true" type="string"  />
-                            <element minOccurs="0" name="AdjustmentDate" nillable="true" type="date" />
+                            <element minOccurs="0" name="AdjustmentDate" nillable="true" type="string" />
                             <element minOccurs="0" name="Amount" nillable="true" type="decimal"/>
                             <element minOccurs="0" name="CancelledOn" nillable="true" type="dateTime"/>
                             <element minOccurs="0" name="Comment" nillable="true" type="string"/>
