@@ -13,9 +13,13 @@ import java.rmi.RemoteException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class ZApiTest {
 
@@ -494,6 +498,166 @@ public class ZApiTest {
 		amendment.setRatePlanData(makeRatePlanDataDiscount100());
 
 		final ZuoraServiceStub.AmendResult[] amendResults = zapi.zAmend(new ZuoraServiceStub.Amendment[]{amendment});
+
+	}
+
+	@Test
+	public void testUpgrade() throws Exception {
+
+		// jmj3
+
+        final LocalDateTime currentTime = LocalDateTime.now();
+		final String userId = "10246874";
+
+		// 12 Months, we will need to get from a call to external-service
+		final List<ID> productRatePlansToUpgrade = new ArrayList();
+
+		ID ratePlanproductId = new ID();
+        ratePlanproductId.setID("2c92c0f9552e6022015530268f953190");
+
+		ID ratePlanDtoId = new ID();
+        ratePlanDtoId.setID("2c92c0f8550f92e2015526a61cd65ad8");
+
+        productRatePlansToUpgrade.add(ratePlanproductId);  //Product
+        productRatePlansToUpgrade.add(ratePlanDtoId);  //Dto
+
+
+		ID subscriptionToUpgrade= null;
+        String subscriptionEndDate = null;
+        Integer currentTerm = 12;
+        String currentTermPeriodType = "Month";
+
+		zapi.zLogin();
+
+		QueryResult accountQueryResult = zapi.zQuery("SELECT Id FROM Account WHERE aba_userId__c = '"+userId+"'");
+
+		if(accountQueryResult.getSize()!=1){
+            //More than one Active ?
+            logger.info("More than one user account with this userId");
+            throw new Exception("More than one user account with this userId");
+        }
+
+
+		final ID accountId = accountQueryResult.getRecords()[0].getId();
+
+		//SubscriptionEndDate is equal to "Next Renewal Date"
+        QueryResult subscriptionQueryResult = zapi.zQuery("SELECT Id,SubscriptionEndDate,CurrentTerm,CurrentTermPeriodType FROM Subscription WHERE AccountId= '"+accountId.toString()+"' and Status='Active'");
+
+        if (subscriptionQueryResult.getSize() == 0){
+            //There is no subscription to upgrade
+            logger.info("There is no subscription to upgrade");
+            throw new Exception("There is no subscription to upgrade");
+        }
+
+        if (subscriptionQueryResult.getSize() >1){
+            //More than one Active ?
+            logger.info("More than one subscription active");
+            throw new Exception("More than one subscription active");
+        }
+
+        if (subscriptionQueryResult.getSize()==1){
+            //Normal process, Active subscription
+            logger.info("Subscription Active");
+            subscriptionToUpgrade = subscriptionQueryResult.getRecords()[0].getId();
+            subscriptionEndDate = ((Subscription)subscriptionQueryResult.getRecords()[0]).getSubscriptionEndDate();
+        }
+
+//        Assert.assertNotNull(subcriptionToUpgrade);
+
+        logger.info("Subscription to update: " + subscriptionToUpgrade.toString());
+
+        //We obtain all ratePlans that the subscription has.
+        QueryResult ratePlanQueryResult = zapi.zQuery(String.format("SELECT Id FROM RatePlan WHERE SubscriptionId= '%s'",subscriptionToUpgrade.toString()));
+
+        final List<ID> ratePlansToRemove = new ArrayList();
+
+        for (ZObject ratePlan: ratePlanQueryResult.getRecords()) {
+            ratePlansToRemove.add(ratePlan.getId());
+        }
+
+        // First amend changing the terms and  onditions
+
+        List<Amendment> amendmentsToApply = new ArrayList<Amendment>();
+
+        ZuoraServiceStub.Amendment amendment;
+
+        amendment = new ZuoraServiceStub.Amendment();
+		amendment.setType("TermsAndConditions");
+		amendment.setName("Upgrade Terms And Conditions");
+		amendment.setSubscriptionId(subscriptionToUpgrade);
+
+		amendment.setContractEffectiveDate(subscriptionEndDate);
+        amendment.setServiceActivationDate(subscriptionEndDate);
+        amendment.setCustomerAcceptanceDate(subscriptionEndDate);
+        amendment.setTermStartDate(subscriptionEndDate);
+
+		amendment.setCurrentTerm(currentTerm);
+		amendment.setCurrentTermPeriodType(currentTermPeriodType);
+		amendment.setRenewalTerm(currentTerm);
+        amendment.setRenewalTermPeriodType(currentTermPeriodType);
+
+        amendment.setAutoRenew(true);
+
+        amendmentsToApply.add(amendment);
+
+        // Remove old ratePlans
+
+        for (ID id : ratePlansToRemove) {
+            RatePlanData ratePlanData = new RatePlanData();
+            RatePlan ratePlan = new RatePlan();
+
+            amendment = new ZuoraServiceStub.Amendment();
+            amendment.setType("RemoveProduct");
+            amendment.setName("Upgrade Remove product");
+            amendment.setSubscriptionId(subscriptionToUpgrade);
+            amendment.setContractEffectiveDate(subscriptionEndDate);
+
+            ratePlan.setAmendmentSubscriptionRatePlanId(id);
+            ratePlanData.setRatePlan(ratePlan);
+
+            amendment.setRatePlanData(ratePlanData);
+
+            amendmentsToApply.add(amendment);
+        }
+
+        // Add new ratePlans
+
+        for (ID id : productRatePlansToUpgrade) {
+            RatePlanData ratePlanData = new RatePlanData();
+            RatePlan ratePlan = new RatePlan();
+
+            amendment = new ZuoraServiceStub.Amendment();
+            amendment.setType("NewProduct");
+            amendment.setName("Upgrade New product");
+            amendment.setSubscriptionId(subscriptionToUpgrade);
+
+            amendment.setContractEffectiveDate(subscriptionEndDate);
+            amendment.setCustomerAcceptanceDate(subscriptionEndDate);
+            amendment.setServiceActivationDate(subscriptionEndDate);
+
+            ratePlan.setProductRatePlanId(id);
+            ratePlanData.setRatePlan(ratePlan);
+
+            amendment.setRatePlanData(ratePlanData);
+
+            amendmentsToApply.add(amendment);
+        }
+
+
+        Amendment[] amendments = new ZuoraServiceStub.Amendment[amendmentsToApply.size()];
+        amendmentsToApply.toArray(amendments);
+
+        final ZuoraServiceStub.AmendResult[] amendResults = zapi.zAmend(amendments);
+
+
+        for (AmendResult amendResult: amendResults) {
+            if (amendResult.getSuccess()){
+                logger.info("Todo OK");
+            }else {
+                logger.info("Todo KO");
+            }
+        }
+
 
 	}
 
