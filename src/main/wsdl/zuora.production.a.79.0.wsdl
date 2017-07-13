@@ -228,11 +228,11 @@
                             <element minOccurs="0" name="CreatedById" nillable="true" type="zns:ID"  />
                             <element minOccurs="0" name="CreatedDate" nillable="true" type="dateTime"  />
                             <element minOccurs="0" name="CreditBalanceAdjustmentAmount" nillable="true" type="decimal"   />
-                            <element minOccurs="0" name="DueDate" nillable="true" type="date" />
+                            <element minOccurs="0" name="DueDate" nillable="true" type="string" />
                             <element minOccurs="0" name="IncludesOneTime" nillable="true" type="boolean" />
                             <element minOccurs="0" name="IncludesRecurring" nillable="true" type="boolean" />
                             <element minOccurs="0" name="IncludesUsage" nillable="true" type="boolean" />
-                            <element minOccurs="0" name="InvoiceDate" nillable="true" type="date" />
+                            <element minOccurs="0" name="InvoiceDate" nillable="true" type="string" />
                             <element minOccurs="0" name="InvoiceNumber" nillable="true" type="string" />
                             <element minOccurs="0" name="LastEmailSentDate" nillable="true" type="dateTime" />
                             <element minOccurs="0" name="PaymentAmount" nillable="true" type="decimal" />
