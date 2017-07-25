@@ -74,6 +74,32 @@ public class ZApiTest {
     }
 
 	@Test
+	public void testZSubscribeEvergreen() throws UnexpectedErrorFault, RemoteException, ParseException {
+		zapi.zLogin();
+
+		final SubscribeResult[] result =  createSubscriptionEvergreen();
+
+		Assert.assertNotNull(result);
+		Assert.assertEquals(result[0].getGatewayResponseCode(), "Approved");
+		Assert.assertTrue(result[0].getSuccess());
+	}
+
+	private SubscribeResult[] createSubscriptionEvergreen() throws ParseException, UnexpectedErrorFault, RemoteException {
+		SubscriptionData data = new SubscriptionData();
+		data.setSubscription(makeSubscriptionEvergreen());
+		data.setRatePlanData(makeRatePlanDataOneTime());
+
+		SubscribeRequest request = new SubscribeRequest();
+		request.setAccount(makeAccount());
+		request.setBillToContact(makeContact()); //CONDITIONAL
+		request.setSoldToContact(makeContact()); //NO
+		request.setPaymentMethod(makePaymentMethod()); // NO
+		request.setSubscriptionData(data);
+
+		return zapi.zSubscribe(new SubscribeRequest[]{  request });
+	}
+
+	@Test
 	public void testCancelSubscriptionDefaultAmendOptions() throws UnexpectedErrorFault, RemoteException, ParseException {
         zapi.zLogin();
 
@@ -386,6 +412,31 @@ public class ZApiTest {
 		return sub;
 	}
 
+	private Subscription makeSubscriptionEvergreen() throws ParseException {
+
+		Date date = new Date();
+
+		String dateInDatabaseFormat = sdf.format(date);
+
+		System.out.println("dateInDatabaseFormat: " + dateInDatabaseFormat);
+
+
+		Subscription sub = new Subscription();
+		sub.setName("EVER-" + System.currentTimeMillis());
+		sub.setTermStartDate(dateInDatabaseFormat);
+		// set ContractEffectiveDate = current date to generate invoice
+		// Generates invoice at the time of subscription creation. uncomment for
+		// invoice generation
+		sub.setContractEffectiveDate(dateInDatabaseFormat);
+		sub.setServiceActivationDate(dateInDatabaseFormat);
+		// set IsInvoiceSeparate=true //To generate invoice separate for every
+		// subscription
+		sub.setIsInvoiceSeparate(true);
+		sub.setNotes("This is a test evergreen subscription");
+		sub.setTermType("EVERGREEN");
+		return sub;
+	}
+
 	/**
 	 * Make rate plan data.
 	 *
@@ -402,6 +453,24 @@ public class ZApiTest {
 
 		return new RatePlanData[] { ratePlanData };
 	}
+
+	public RatePlanData[] makeRatePlanDataOneTime() {
+		RatePlanData ratePlanData = new RatePlanData();
+		RatePlan ratePlan = new RatePlan();
+
+		// productRatePlanId 2c92c0f85d59652c015d790895921d99
+		// ratePlanId 2c92c0f85d59652c015d791485de5859
+		// productId 2c92c0f95d59763e015d78c6043c602c
+
+		ID productRatePlanId = new ID();
+		productRatePlanId.setID("2c92c0f85d59652c015d790895921d99");
+		ratePlan.setProductRatePlanId(productRatePlanId);
+
+		ratePlanData.setRatePlan(ratePlan);
+
+		return new RatePlanData[] { ratePlanData };
+	}
+
 	@Test
 	public void updateAccountStatus() {
 
