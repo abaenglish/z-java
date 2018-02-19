@@ -331,7 +331,7 @@ public class ZApiTest {
 		pm.setCreditCardPostalCode("92808");
 		pm.setCreditCardCountry("United States");
 		pm.setCreditCardHolderName("Firstly Lastly");
-		pm.setCreditCardExpirationYear(2017);
+		pm.setCreditCardExpirationYear(2050);
 		pm.setCreditCardExpirationMonth(12);
 		pm.setCreditCardNumber("4111111111111111");
 		return pm;
@@ -376,6 +376,7 @@ public class ZApiTest {
 		// invoice generation
 		sub.setContractEffectiveDate(dateInDatabaseFormat);
 		sub.setServiceActivationDate(dateInDatabaseFormat);
+		sub.setContractAcceptanceDate(dateInDatabaseFormat);
 		// set IsInvoiceSeparate=true //To generate invoice separate for every
 		// subscription
 		sub.setIsInvoiceSeparate(true);
