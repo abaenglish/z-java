@@ -704,6 +704,7 @@
                				<element minOccurs="0" name="titleKey__c" nillable="false" type="string" />
                				<element minOccurs="0" name="UpdatedById" nillable="true" type="zns:ID"  />
                				<element minOccurs="0" name="UpdatedDate" nillable="true" type="dateTime"  />
+							<element minOccurs="0" name="freeTrialDays__c" nillable="true" type="string" />
 						</sequence>
 					</extension>
 				</complexContent>
