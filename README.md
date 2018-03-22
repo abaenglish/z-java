@@ -46,9 +46,22 @@ Example:
     external:
       zuora:
         soap:
-          username: apiuserzuora@abaenglish.com
-          password: thisismypassword
+          username: the_username
+          password: the_password
           host: apisandbox.zuora.com
+```
+
+To run the tests, you have to create the file:
+
+    src/main/resources/config.properties
+    
+With this content:
+
+```
+# Zuora API user credentials (required)
+username = the_username
+password = the_password
+endpoint = https://apisandbox.zuora.com/apps/services/a/79.0
 ```
 
 Build the JAR file
@@ -69,6 +82,7 @@ This WSDL has changed some attributes in method **Subscription** (PLEASE MANTAIN
 -  **ContractEffectiveDay**  date -> string
 -  **ServiceActivationDate**   date -> string
 -  **TermStartDate**   date -> string
+-  **ContractAcceptanceDate** date -> string
 
 This WSDL has changed some attributes in method **Amendment** (PLEASE MANTAIN THIS CHANGES WHEN UPDATE WSDL):
 -  **ContractEffectiveDate**  date -> string
